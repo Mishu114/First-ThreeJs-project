@@ -2,6 +2,7 @@ import * as THREE from "three";
 import createCamera from "./world/camera.js";
 import createScene from "./world/scene.js";
 import createCube from "./world/objects/cube.js";
+import gsap from "gsap";
 
 const canvas = document.querySelector("canvas.webgl");
 
@@ -42,10 +43,43 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
   });
 
+const sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4, 32, 32),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+);
+scene.add(sphere);
+sphere.position.y = -2;
+//gsap.to(sphere.position, { y: 3, duration: 1,  yoyo: true, repeat: -1 });
+gsap.to(sphere.position, {
+    x: 4,
+    y: 4,
+    duration: 2,
+    repeat: -1,
+    yoyo: true,
+    modifiers: {
+        x: gsap.utils.unitize(value => 4 * Math.cos(Date.now() * 0.002)),
+        y: gsap.utils.unitize(value => 4 * Math.sin(Date.now() * 0.002))
+    }
+});
+
+
 function animate() {
     requestAnimationFrame(animate);
-    cube1.rotateY(0.04);
-    group.rotateX(0.01);
+    //group.rotateX(0.04);
+    group.position.y = Math.sin(Date.now() * 0.002);
     renderer.render(scene, camera);
 }
+
+let time = Date.now();
+function cubeRotate() {
+    const delta = Date.now() - time;
+    time = Date.now();
+    requestAnimationFrame(cubeRotate);
+    cube1.rotateY(0.004*delta);
+    cube2.rotateY(-0.004*delta);
+    cube3.rotateY(-0.004*delta);
+}
 animate();
+cubeRotate();
+
+
